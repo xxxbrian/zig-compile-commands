@@ -1,0 +1,44 @@
+name: Update README
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  update-commit-and-hash:
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Setup Zig
+      run: |
+        brew install zig
+
+    - name: Get latest commit SHA
+      id: get_sha
+      run: echo "sha=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
+
+    - name: Update README URL
+      run: |
+        sed -i.bak 's|\(https://github.com/xxxbrian/zig-compile-commands/archive/\)[^.]*\.tar\.gz|\1${{ steps.get_sha.outputs.sha }}.tar.gz|g' README.md && rm README.md.bak
+
+    - name: Fetch new hash
+      id: fetch_hash
+      run: |
+        NEW_URL="https://github.com/xxxbrian/zig-compile-commands/archive/${{ steps.get_sha.outputs.sha }}.tar.gz"
+        HASH=$(zig fetch $NEW_URL | grep "^[0-9a-f]*$")
+        echo "hash=$HASH" >> $GITHUB_OUTPUT
+
+    - name: Update hash in README
+      run: |
+        sed -i.bak 's/\.hash = "[^"]*"/\.hash = "${{ steps.fetch_hash.outputs.hash }}"/g' README.md && rm README.md.bak
+
+    - name: Commit changes
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add README.md
+        git commit -m "docs: update with latest commit and hash" || echo "No changes to commit"
+        git push
