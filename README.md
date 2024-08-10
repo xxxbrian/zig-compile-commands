@@ -15,8 +15,8 @@ First, `build.zig.zon`:
 
     .dependencies = .{
         .compile_commands = .{
-            .url = "https://github.com/xxxbrian/zig-compile-commands/archive/xxx.tar.gz",
-            .hash = "xxx",
+            .url = "https://github.com/xxxbrian/zig-compile-commands/archive/77df837b2b13bd3d15ee00de07a1b8f6cb840c69.tar.gz",
+            .hash = "12205f1bd27373077104440e39cbc388b2ebbc8938378cc261506588feed29fedf35",
         },
     }
 }
